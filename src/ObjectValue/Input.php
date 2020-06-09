@@ -1,11 +1,11 @@
 <?php
 
 
-namespace Dennis\PHPAuth\ObjectValue;
+namespace Assin\PHPAuth\ObjectValue;
 
 /**
  * Class Input keep all data that needs on authentication actions(login, isLogin, etc)
- * @package Dennis\PHPAuth\ObjectValue
+ * @package Assin\PHPAuth\ObjectValue
  */
 class Input
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Dennis\PHPAuthTests\Unit;
+namespace Assin\PHPAuthTests\Unit;
 
-use Dennis\PHPAuthTests\TestCase;
+use Assin\PHPAuthTests\TestCase;
 
 class ExampleTest extends TestCase
 {

@@ -1,14 +1,14 @@
 <?php
 
 
-namespace Dennis\PHPAuth\Contracts;
+namespace Assin\PHPAuth\Contracts;
 
 
-use Dennis\PHPAuth\ObjectValue\Input;
+use Assin\PHPAuth\ObjectValue\Input;
 
 /**
  * An interface to handle middleware before call authentication method(login, isLogin, etc).
- * @package Dennis\PHPAuth\Contracts
+ * @package Assin\PHPAuth\Contracts
  */
 interface MiddlewareInterface
 {

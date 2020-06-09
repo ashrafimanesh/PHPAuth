@@ -1,5 +1,5 @@
 {
-    "name": "dennis/php-auth",
+    "name": "assin/php-auth",
     "authors": [
         {
             "name": "Ramin Ashrafi manesh",
@@ -15,12 +15,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Dennis\\PHPAuth\\": "src/"
+            "Assin\\PHPAuth\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Dennis\\PHPAuthTests\\": "tests/"
+            "Assin\\PHPAuthTests\\": "tests/"
         }
     }
 }

@@ -1,12 +1,12 @@
 <?php
 
-namespace Dennis\PHPAuthTests;
+namespace Assin\PHPAuthTests;
 
-use Dennis\PHPAuth\Auth;
-use Dennis\PHPAuth\Builder\DriverBuilder;
-use Dennis\PHPAuth\Contracts\DriverInterface;
-use Dennis\PHPAuth\Middleware\Kernel as MiddlewareKernel;
-use Dennis\PHPAuth\ObjectValue\Input;
+use Assin\PHPAuth\Auth;
+use Assin\PHPAuth\Builder\DriverBuilder;
+use Assin\PHPAuth\Contracts\DriverInterface;
+use Assin\PHPAuth\Middleware\Kernel as MiddlewareKernel;
+use Assin\PHPAuth\ObjectValue\Input;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase

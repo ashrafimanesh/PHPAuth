@@ -1,14 +1,14 @@
 <?php
 
-namespace Dennis\PHPAuth;
+namespace Assin\PHPAuth;
 
-use Dennis\PHPAuth\Builder\DriverBuilder;
-use Dennis\PHPAuth\Middleware\Kernel as MiddlewareKernel;
-use Dennis\PHPAuth\ObjectValue\Input;
+use Assin\PHPAuth\Builder\DriverBuilder;
+use Assin\PHPAuth\Middleware\Kernel as MiddlewareKernel;
+use Assin\PHPAuth\ObjectValue\Input;
 
 /**
  * Class Auth
- * @package Dennis\PHPAuth
+ * @package Assin\PHPAuth
  */
 class Auth
 {

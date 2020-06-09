@@ -1,11 +1,11 @@
 <?php
 
 
-namespace Dennis\PHPAuth\Contracts;
+namespace Assin\PHPAuth\Contracts;
 
 /**
  * Interface DriverInterface
- * @package Dennis\PHPAuth\Contracts
+ * @package Assin\PHPAuth\Contracts
  */
 interface DriverInterface
 {
