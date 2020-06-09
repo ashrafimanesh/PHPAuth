@@ -26,7 +26,7 @@ class Auth
      * @param DriverBuilder $driverBuilder
      * @param MiddlewareKernel $middlewareKernel
      */
-    public function __construct(DriverBuilder $driverBuilder, MiddlewareKernel $middlewareKernel)
+    public function __construct(DriverBuilder $driverBuilder, MiddlewareKernel $middlewareKernel = null)
     {
         $this->driverBuilder = $driverBuilder;
         $this->middlewareKernel = $middlewareKernel;
@@ -40,8 +40,7 @@ class Auth
      */
     public function login($driverId, Input $input)
     {
-        $driver = $this->driverBuilder->getDriver($driverId);
-        $this->middlewareKernel->run($input);
+        $driver = $this->beforeAction($driverId, $input);
         return call_user_func_array([$driver, 'login'], [$input]);
     }
 
@@ -53,8 +52,22 @@ class Auth
      */
     public function isLogin($driverId, Input $input)
     {
-        $driver = $this->driverBuilder->getDriver($driverId);
-        $this->middlewareKernel->run($input);
+        $driver = $this->beforeAction($driverId, $input);
         return call_user_func_array([$driver, 'isLogin'], [$input]);
+    }
+
+    /**
+     * @param $driverId
+     * @param Input $input
+     * @return Contracts\DriverInterface
+     * @throws Exception\InvalidDriverException
+     */
+    protected function beforeAction($driverId, Input $input): Contracts\DriverInterface
+    {
+        $driver = $this->driverBuilder->getDriver($driverId);
+        if ($this->middlewareKernel) {
+            $this->middlewareKernel->run($input);
+        }
+        return $driver;
     }
 }
