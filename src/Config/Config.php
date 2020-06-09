@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Dennis\PHPAuth\Config;
+namespace Assin\PHPAuth\Config;
 
 
 class Config

@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Dennis\PHPAuth\Contracts;
+namespace Assin\PHPAuth\Contracts;
 /**
  * An interface to return instance of DriverInterface
- * @package Dennis\PHPAuth\Contracts
+ * @package Assin\PHPAuth\Contracts
  */
 interface DriverBuilderInterface
 {

@@ -21,9 +21,9 @@ Usage
 
 require 'vendor/autoload.php';
 
-class SimpleDriver implements \Dennis\PHPAuth\Contracts\DriverInterface
+class SimpleDriver implements \Assin\PHPAuth\Contracts\DriverInterface
 {
-    public function login(\Dennis\PHPAuth\ObjectValue\Input $input)
+    public function login(\Assin\PHPAuth\ObjectValue\Input $input)
     {
         if($input->get('username') === 'test' && $input->get('password') === 'test'){
             return 'Success!';
@@ -39,7 +39,7 @@ $driver = new SimpleDriver();
 
 $driverId = 1;
 
-$driverBuilder = new \Dennis\PHPAuth\Builder\DriverBuilder([
+$driverBuilder = new \Assin\PHPAuth\Builder\DriverBuilder([
     $driverId=>$driver
 ]);
 
@@ -47,7 +47,7 @@ $driverBuilder = new \Dennis\PHPAuth\Builder\DriverBuilder([
 * Initiate request data.
 
 ```php
-$input = new \Dennis\PHPAuth\ObjectValue\Input([
+$input = new \Assin\PHPAuth\ObjectValue\Input([
     'username'=>'test',
     'password'=>'test'
 ]);
@@ -57,7 +57,7 @@ $input = new \Dennis\PHPAuth\ObjectValue\Input([
 * Config auth class.
 
 ```php
-$auth = new \Dennis\PHPAuth\Auth($driverBuilder);
+$auth = new \Assin\PHPAuth\Auth($driverBuilder);
 
 print_r($auth->login($driverId, $input));
 
@@ -71,9 +71,9 @@ Full example 1:
 
 require 'vendor/autoload.php';
 
-class SimpleDriver implements \Dennis\PHPAuth\Contracts\DriverInterface
+class SimpleDriver implements \Assin\PHPAuth\Contracts\DriverInterface
 {
-    public function login(\Dennis\PHPAuth\ObjectValue\Input $input)
+    public function login(\Assin\PHPAuth\ObjectValue\Input $input)
     {
         if($input->get('username') === 'test' && $input->get('password') === 'test'){
             return 'Success!';
@@ -86,16 +86,16 @@ $driver = new SimpleDriver();
 
 $driverId = 1;
 
-$driverBuilder = new \Dennis\PHPAuth\Builder\DriverBuilder([
+$driverBuilder = new \Assin\PHPAuth\Builder\DriverBuilder([
     $driverId=>$driver
 ]);
 
-$input = new \Dennis\PHPAuth\ObjectValue\Input([
+$input = new \Assin\PHPAuth\ObjectValue\Input([
     'username'=>'test',
     'password'=>'test'
 ]);
 
-$auth = new \Dennis\PHPAuth\Auth($driverBuilder);
+$auth = new \Assin\PHPAuth\Auth($driverBuilder);
 
 print_r($auth->login($driverId, $input));
 
@@ -111,9 +111,9 @@ Multiple drivers example 2:
 
 require 'vendor/autoload.php';
 
-class SimpleDriver implements \Dennis\PHPAuth\Contracts\DriverInterface
+class SimpleDriver implements \Assin\PHPAuth\Contracts\DriverInterface
 {
-    public function login(\Dennis\PHPAuth\ObjectValue\Input $input)
+    public function login(\Assin\PHPAuth\ObjectValue\Input $input)
     {
         if($input->get('username') === 'test' && $input->get('password') === 'test'){
             return 'Successful!';
@@ -123,9 +123,9 @@ class SimpleDriver implements \Dennis\PHPAuth\Contracts\DriverInterface
 }
 
 
-class SimpleDriver2 implements \Dennis\PHPAuth\Contracts\DriverInterface
+class SimpleDriver2 implements \Assin\PHPAuth\Contracts\DriverInterface
 {
-    public function login(\Dennis\PHPAuth\ObjectValue\Input $input)
+    public function login(\Assin\PHPAuth\ObjectValue\Input $input)
     {
         if($input->get('username') === 'test' && $input->get('password') === 'test'){
             return ['status'=>true, 'message'=>'Successful!'];
@@ -134,19 +134,19 @@ class SimpleDriver2 implements \Dennis\PHPAuth\Contracts\DriverInterface
     }
 }
 
-$driverBuilder = new \Dennis\PHPAuth\Builder\DriverBuilder([
+$driverBuilder = new \Assin\PHPAuth\Builder\DriverBuilder([
     1=>new SimpleDriver(),
     2=>new SimpleDriver2()
 ]);
 
 
 
-$input = new \Dennis\PHPAuth\ObjectValue\Input([
+$input = new \Assin\PHPAuth\ObjectValue\Input([
     'username'=>'test',
     'password'=>'test'
 ]);
 
-$auth = new \Dennis\PHPAuth\Auth($driverBuilder);
+$auth = new \Assin\PHPAuth\Auth($driverBuilder);
 
 //Print driver 1 respond
 print_r($auth->login(1, $input));
@@ -162,9 +162,9 @@ Middleware Example:
 
 ```php
 
-Class SimpleMiddleware implements \Dennis\PHPAuth\Contracts\MiddlewareInterface{
+Class SimpleMiddleware implements \Assin\PHPAuth\Contracts\MiddlewareInterface{
 
-    public function handle(\Dennis\PHPAuth\ObjectValue\Input $input, \Closure $next)
+    public function handle(\Assin\PHPAuth\ObjectValue\Input $input, \Closure $next)
     {
         if($input->get('username') === 'test'){
             throw new Exception('The user is banned');
@@ -179,7 +179,7 @@ Class SimpleMiddleware implements \Dennis\PHPAuth\Contracts\MiddlewareInterface{
 
 ```php
 
-$auth = new \Dennis\PHPAuth\Auth($driverBuilder, new \Dennis\PHPAuth\Middleware\Kernel([
+$auth = new \Assin\PHPAuth\Auth($driverBuilder, new \Assin\PHPAuth\Middleware\Kernel([
     new SimpleMiddleware()
 ]));
 

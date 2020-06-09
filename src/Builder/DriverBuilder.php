@@ -1,11 +1,11 @@
 <?php
 
 
-namespace Dennis\PHPAuth\Builder;
+namespace Assin\PHPAuth\Builder;
 
-use Dennis\PHPAuth\Contracts\DriverBuilderInterface;
-use Dennis\PHPAuth\Contracts\DriverInterface;
-use Dennis\PHPAuth\Exception\InvalidDriverException;
+use Assin\PHPAuth\Contracts\DriverBuilderInterface;
+use Assin\PHPAuth\Contracts\DriverInterface;
+use Assin\PHPAuth\Exception\InvalidDriverException;
 
 class DriverBuilder implements DriverBuilderInterface
 {

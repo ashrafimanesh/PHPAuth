@@ -1,13 +1,13 @@
 <?php
 
 
-namespace Dennis\PHPAuthTests\Unit;
+namespace Assin\PHPAuthTests\Unit;
 
-use Dennis\PHPAuth\Config\Config;
-use Dennis\PHPAuth\Contracts\DriverInterface;
-use Dennis\PHPAuth\Exception\InvalidDriverException;
-use Dennis\PHPAuth\ObjectValue\Input;
-use Dennis\PHPAuthTests\TestCase;
+use Assin\PHPAuth\Config\Config;
+use Assin\PHPAuth\Contracts\DriverInterface;
+use Assin\PHPAuth\Exception\InvalidDriverException;
+use Assin\PHPAuth\ObjectValue\Input;
+use Assin\PHPAuthTests\TestCase;
 use \Mockery;
 
 class LoginTest extends TestCase

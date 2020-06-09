@@ -1,11 +1,11 @@
 <?php
 
 
-namespace Dennis\PHPAuth\Exception;
+namespace Assin\PHPAuth\Exception;
 
 /**
  * Class InvalidDriverException
- * @package Dennis\PHPAuth\Exception
+ * @package Assin\PHPAuth\Exception
  */
 class InvalidDriverException extends \Exception
 {

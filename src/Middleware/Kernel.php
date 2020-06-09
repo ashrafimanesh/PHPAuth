@@ -1,11 +1,11 @@
 <?php
 
 
-namespace Dennis\PHPAuth\Middleware;
+namespace Assin\PHPAuth\Middleware;
 
 
-use Dennis\PHPAuth\Contracts\MiddlewareInterface;
-use Dennis\PHPAuth\ObjectValue\Input;
+use Assin\PHPAuth\Contracts\MiddlewareInterface;
+use Assin\PHPAuth\ObjectValue\Input;
 
 class Kernel
 {
