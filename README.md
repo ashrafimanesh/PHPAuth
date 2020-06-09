@@ -11,7 +11,7 @@ Installation
 ------------
 Use composer to manage your dependencies and download PHPAuth:
 ```bash
-composer require dennis/php-auth
+composer require assin/php-auth
 ```
 Usage
 -------
