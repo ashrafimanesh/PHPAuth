@@ -20,6 +20,9 @@ class Input
 
     public function __construct($data = null)
     {
+        if(is_null($data)){
+            $data = [];
+        }
         $this->initData = $data;
         $this->data = $data;
     }
