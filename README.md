@@ -190,3 +190,82 @@ try {
 }
 
 ```
+
+JWT Driver
+----------
+JWT driver use lcobucci/jwt package for authentication with Authorization header param. 
+We must implement some interfaces to use the driver.
+
+**Implement UserRepositoryInterface class**
+This interface find user and return an object that implements UserInterface.
+```php
+<?php
+
+use Assin\PHPAuth\Auth;
+use Assin\PHPAuth\Builder\DriverBuilder;
+use Assin\PHPAuth\Config\Config;
+use Assin\PHPAuth\Contracts\UserInterface;
+use Assin\PHPAuth\Contracts\UserRepositoryInterface;
+use Assin\PHPAuth\Drivers\JWT\Config as JWTConfig;
+use Assin\PHPAuth\Drivers\JWT\JWTDriver;
+use Assin\PHPAuth\Drivers\JWT\Response;
+use Assin\PHPAuth\ObjectValue\Input;
+
+require 'vendor/autoload.php';
+
+
+class SimpleUserRepository implements UserRepositoryInterface {
+
+    public function findByInput(Input $input) : UserInterface{
+        $userId = $input->get('username')=='1234' && $input->get('password')=='1234' ? 1 : 0;
+        return new \Assin\PHPAuth\Drivers\JWT\User($userId);
+    }
+}
+
+
+$userRepository = new SimpleUserRepository();
+
+$driverId = Config::DRIVER_JWT;
+$JWTDriver = new JWTDriver(new JWTConfig(), $userRepository);
+
+$driverBuilder = new DriverBuilder([$driverId => $JWTDriver]);
+
+$input = new Input(['username'=>'1234', 'password'=>'1234']);
+
+/** @var Response $response */
+$response = (new Auth($driverBuilder))->login($driverId, $input);
+
+$token = $response->getData()['token'];
+
+print_r($token);
+
+``` 
+
+JWT Driver - Create guest token
+-------------------------------
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+$JWTDriver = new \Assin\PHPAuth\Drivers\JWT\JWTDriver();
+$token = $JWTDriver->createToken();
+
+print_r($JWTDriver->plainToken($token, true));
+```
+
+JWT Driver - Refresh token
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+$oldToken = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImp0aSI6IjRmMWcyM2ExMmFhIn0.eyJqdGkiOiI0ZjFnMjNhMTJhYSIsImlhdCI6MTU5MjExNDczMywiZXhwIjoxNTkyMTE4MzMzLCJ1c2VyX2luZm8iOnsiaWQiOjF9fQ.gLhkKVtSjx5pDLX973grZ94CHKv5gsYw99sfeX5XzQs';
+$JWTDriver = new \Assin\PHPAuth\Drivers\JWT\JWTDriver();
+$token = $JWTDriver->parseToTokenObject($oldToken);
+$newToken = $JWTDriver->refreshToken($token);
+
+print_r($JWTDriver->plainToken($newToken, true));
+
+```
