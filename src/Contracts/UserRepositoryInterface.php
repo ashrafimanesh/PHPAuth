@@ -8,5 +8,7 @@ use Assin\PHPAuth\ObjectValue\Input;
 
 interface UserRepositoryInterface
 {
-    public function findByInput(Input $input): UserInterface;
+    public function findForLogin(Input $input): UserInterface;
+
+    public function findForForgetPassword(Input $input): UserInterface;
 }

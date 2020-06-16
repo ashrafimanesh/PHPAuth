@@ -32,7 +32,12 @@ class JWTTest extends \Assin\PHPAuthTests\TestCase
         $input->set('header.Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImp0aSI6IjRmMWcyM2ExMmFhIn0.eyJqdGkiOiI0ZjFnMjNhMTJhYSIsImlhdCI6MTU5MjAzNzkzOCwiZXhwIjoxNTkyMDM3OTM5LCJ1c2VyX2luZm8iOltdfQ.yyJWz61cee6XsbCHfat5MbUVsfpU5t8CY2LixUMnu0s');
         $input->set('username', '1234')->set('password', '1234');
         $driverId = Config::DRIVER_JWT;
-        $userRepository = $this->mockUserRepository();
+        $userRepository = $this->mockUserRepository('findForLogin', function (Input $input, $user, $guestUser) {
+            if (!$input->get('username') || !$input->get('password')) {
+                return $guestUser;
+            }
+            return $user;
+        });
 
         $JWTDriver = new JWTDriver(new \Assin\PHPAuth\Drivers\JWT\Config(), $userRepository);
 
@@ -58,10 +63,36 @@ class JWTTest extends \Assin\PHPAuthTests\TestCase
             && ((string)$token->getClaim('exp') < (string)$newToken->getClaim('exp')));
     }
 
+    public function testForgetPassword()
+    {
+        $input = new Input();
+        $input->set('header.Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImp0aSI6IjRmMWcyM2ExMmFhIn0.eyJqdGkiOiI0ZjFnMjNhMTJhYSIsImlhdCI6MTU5MjAzNzkzOCwiZXhwIjoxNTkyMDM3OTM5LCJ1c2VyX2luZm8iOltdfQ.yyJWz61cee6XsbCHfat5MbUVsfpU5t8CY2LixUMnu0s');
+        $input->set('username', '1234');
+        $driverId = Config::DRIVER_JWT;
+        $userRepository = $this->mockUserRepository('findForForgetPassword', function (Input $input, $user, $guestUser) {
+            if (!$input->get('username')) {
+                return $guestUser;
+            }
+            return $user;
+        });
+
+        $JWTDriver = new JWTDriver(new \Assin\PHPAuth\Drivers\JWT\Config(), $userRepository);
+
+        $driverBuilder = new DriverBuilder([$driverId => $JWTDriver]);
+
+        /** @var Response $response */
+        $response = (new Auth($driverBuilder))->callDriverMethod('forgotPassword', $driverId, $input);
+
+        $this->assertTrue($response->getStatus() == 200, $response->getMessage());
+        $this->assertTrue($response->getData()['token'] &&  $response->getData()['code']);
+    }
+
     /**
+     * @param $method
+     * @param \Closure $return
      * @return UserRepositoryInterface|LegacyMockInterface|MockInterface
      */
-    protected function mockUserRepository()
+    protected function mockUserRepository($method, \Closure $return)
     {
         $userRepository = \Mockery::mock(UserRepositoryInterface::class);
         $guestUser = \Mockery::mock(UserInterface::class);
@@ -71,13 +102,9 @@ class JWTTest extends \Assin\PHPAuthTests\TestCase
 
         $user->shouldReceive('getUserId')->withNoArgs()->andReturn($this->userId);
 
-        $userRepository->shouldReceive('findByInput')
-            ->withAnyArgs()->andReturnUsing(function (Input $input) use ($user, $guestUser) {
-                if (!$input->get('username') || !$input->get('password')) {
-                    return $guestUser;
-                }
-                return $user;
-            });
+        $userRepository->shouldReceive($method)->withAnyArgs()->andReturnUsing(function (Input $input) use ($return, $user, $guestUser) {
+            return $return($input, $user, $guestUser);
+        });
         return $userRepository;
     }
 }

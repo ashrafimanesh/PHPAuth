@@ -53,6 +53,8 @@ class LoginTest extends TestCase
     protected function mockSimpleTwoStepAuthorizerDriver()
     {
         $authorizerDriver = Mockery::mock(DriverInterface::class);
+        $authorizerDriver->shouldReceive('getMiddleware')
+            ->withNoArgs()->andReturn([]);
 
         $authorizerDriver->shouldReceive('login')
             ->withAnyArgs()
