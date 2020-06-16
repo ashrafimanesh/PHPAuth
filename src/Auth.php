@@ -29,7 +29,22 @@ class Auth
     public function __construct(DriverBuilder $driverBuilder, MiddlewareKernel $middlewareKernel = null)
     {
         $this->driverBuilder = $driverBuilder;
-        $this->middlewareKernel = $middlewareKernel;
+        $this->middlewareKernel = $middlewareKernel ?: new MiddlewareKernel([]);
+    }
+
+    /**
+     * @param $method
+     * @param $driverId
+     * @param Input $input
+     * @param array $args to pass more thant Input argument to driver method.
+     * @return mixed
+     * @throws Exception\InvalidDriverException
+     */
+    public function callDriverMethod($method, $driverId, Input $input, array $args = [])
+    {
+        $driver = $this->beforeAction($driverId, $input, $method);
+        array_unshift($args, $input);
+        return call_user_func_array([$driver, $method], $args);
     }
 
     /**
@@ -40,8 +55,9 @@ class Auth
      */
     public function login($driverId, Input $input)
     {
-        $driver = $this->beforeAction($driverId, $input);
-        return call_user_func_array([$driver, 'login'], [$input]);
+        $action = 'login';
+        $driver = $this->beforeAction($driverId, $input, $action);
+        return call_user_func_array([$driver, $action], [$input]);
     }
 
     /**
@@ -52,22 +68,26 @@ class Auth
      */
     public function isLogin($driverId, Input $input)
     {
-        $driver = $this->beforeAction($driverId, $input);
-        return call_user_func_array([$driver, 'isLogin'], [$input]);
+        $action = 'isLogin';
+        $driver = $this->beforeAction($driverId, $input, $action);
+        return call_user_func_array([$driver, $action], [$input]);
     }
 
     /**
      * @param $driverId
      * @param Input $input
+     * @param string $action
      * @return Contracts\DriverInterface
      * @throws Exception\InvalidDriverException
      */
-    protected function beforeAction($driverId, Input $input): Contracts\DriverInterface
+    protected function beforeAction($driverId, Input $input, string $action): Contracts\DriverInterface
     {
         $driver = $this->driverBuilder->getDriver($driverId);
-        if ($this->middlewareKernel) {
-            $this->middlewareKernel->run($input);
+        if(method_exists($driver, 'getMiddleware')){
+            $privateMiddleware = $driver->getMiddleware($action);
         }
+        $this->middlewareKernel->run($input, $privateMiddleware ?? []);
+
         return $driver;
     }
 }
