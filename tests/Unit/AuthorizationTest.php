@@ -17,6 +17,8 @@ class AuthorizationTest extends TestCase
         $driverId = Config::DRIVER_USERNAME_PASSWORD;
         $input = new Input(['token' => '1234']);
         $authorizerDriver = \Mockery::mock(DriverInterface::class);
+        $authorizerDriver->shouldReceive('getMiddleware')
+            ->withNoArgs()->andReturn([]);
 
         $authorizerDriver->shouldReceive('isLogin')
             ->withAnyArgs()

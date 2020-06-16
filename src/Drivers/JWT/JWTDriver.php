@@ -4,10 +4,13 @@
 namespace Assin\PHPAuth\Drivers\JWT;
 
 
+use Assin\PHPAuth\Contracts\CodeGeneratorInterface;
 use Assin\PHPAuth\Contracts\DriverInterface;
+use Assin\PHPAuth\Contracts\MiddlewareInterface;
 use Assin\PHPAuth\Contracts\UserInterface;
 use Assin\PHPAuth\Contracts\UserRepositoryInterface;
 use Assin\PHPAuth\ObjectValue\Input;
+use Closure;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\ValidationData;
@@ -24,35 +27,49 @@ class JWTDriver implements DriverInterface
     /**
      * @var UserRepositoryInterface
      */
-    private $userRepository;
+    protected $userRepository;
 
     /**
      * @var Config
      */
-    private $config;
+    protected $config;
 
-    public function __construct(Config $config = null, UserRepositoryInterface $userRepository = null)
+    /**
+     * @var array
+     */
+    protected $middleware = [
+        //Group to call by Auth class before the action call.
+        'public' => [],
+        //Group to call in login
+        'login' => [],
+        //Group to call in forget password
+        'forgotPassword' => [],
+    ];
+    /** @var CodeGeneratorInterface */
+    protected $codeGenerator;
+
+    public $codeLength = 8;
+
+    public function __construct(Config $config = null, UserRepositoryInterface $userRepository = null, CodeGeneratorInterface $codeGenerator = null)
     {
         $this->userRepository = $userRepository;
         $this->config = $config ?: new Config();
+        $this->codeGenerator = $codeGenerator ?: new CodeGenerator();
     }
 
     /**
      * Use this method to create a token for guest or logged in user.
      * Call getJWTData method to getJWTData if you need old jwtData in old token.
-     * @param UserInterface $user
-     * @param array $jwtData
+     * @param array $userInfo
      * @return Token
      */
-    public function createToken(UserInterface $user = null, array $jwtData = []): Token
+    public function createToken(array $userInfo = []): Token
     {
         $time = time();
 
         $builder = $this->config->getBuilder()
             ->issuedAt($time) // Configures the time that the token was issue (iat claim)
             ->expiresAt($time + $this->config->getExpireAfter());
-
-        $userInfo = $this->makeUserInfo($user, $jwtData)->toArray();
 
         return $builder->withClaim('user_info', $userInfo)
             ->getToken($this->config->getSigner(), $this->config->getKey()); // Retrieves the generated token
@@ -66,7 +83,7 @@ class JWTDriver implements DriverInterface
     {
         $time = time();
         $builder = $this->config->getBuilder();
-        foreach($token->getClaims() as $name=>$value){
+        foreach ($token->getClaims() as $name => $value) {
             $builder->withClaim($name, $value);
         }
         $builder->expiresAt($time + $this->config->getExpireAfter());
@@ -83,27 +100,61 @@ class JWTDriver implements DriverInterface
      */
     public function login(Input $input): Response
     {
-        if(is_null($this->userRepository)){
-            throw new JWTUserRepositoryException('Invalid user repository on jwt driver!');
+        try {
+            list($user, $jwtData) = $this->checkUser($input, function () use ($input) {
+                return $this->userRepository->findForLogin($input);
+            });
+        } catch (JWTInValidUserException $e) {
+            return new Response($e->getCode(), $e->getMessage());
         }
 
-        $jwtData = $this->getJWTData($input->get($this->headerKeyName));
-
-        if ($jwtData) {
-            $input->set('jwt_data', $jwtData);
-        }
-        $user = $this->userRepository->findByInput($input);
-        if (!$user->getUserId()) {
-            return new Response(Response::STATUS_INVALID_USER, 'Invalid user!');
-        }
-
-        if((isset($jwtData['user_info']['id']) && $user->getUserId() != $jwtData['user_info']['id'])){
-            return new Response(Response::STATUS_MISMATCH_USER_ID, 'Mismatch user id!');
-        }
-
-        $token = $this->createToken($user, $jwtData);
+        $token = $this->createToken($this->makeUserInfo($user, $jwtData)->toArray());
 
         return (new Response())->setData(['token' => $this->plainToken($token, true)]);
+    }
+
+    /**
+     * @param Input $input
+     * @return Response
+     * @throws JWTUserRepositoryException
+     */
+    public function forgotPassword(Input $input)
+    {
+        try {
+            /** @var UserInterface $user */
+            list($user, $jwtData) = $this->checkUser($input, function () use ($input) {
+                return $this->userRepository->findForForgetPassword($input);
+            });
+        } catch (JWTInValidUserException $e) {
+            return new Response($e->getCode(), $e->getMessage());
+        }
+
+        $userInfo = $this->makeUserInfo($user, $jwtData)->toArray();
+        $userInfo['forget_time'] = time();
+
+        $token = $this->createToken($userInfo);
+
+        return (new Response())->setData(['token' => $this->plainToken($token, true), 'code' => $this->generateCode($user)]);
+    }
+
+    public function getMiddleware(string $groupName): array
+    {
+        $middleware = $this->middleware['public'] ?? [];
+        if (isset($this->middleware[$groupName])) {
+            foreach ($this->middleware[$groupName] as $item) {
+                $middleware[] = $item;
+            }
+        }
+        return $middleware;
+    }
+
+    public function addMiddleware(string $groupName, MiddlewareInterface $middleware)
+    {
+        if (!isset($this->middleware[$groupName])) {
+            $this->middleware[$groupName] = [];
+        }
+        $this->middleware[$groupName][] = $middleware;
+        return $this;
     }
 
     public function parseToTokenObject($token): Token
@@ -160,6 +211,58 @@ class JWTDriver implements DriverInterface
     protected function makeUserInfo(UserInterface $user = null, array $jwtData = []): UserInfo
     {
         return new UserInfo($user, $jwtData);
+    }
+
+    /**
+     * @return UserRepositoryInterface
+     */
+    public function getUserRepository(): UserRepositoryInterface
+    {
+        return $this->userRepository;
+    }
+
+    /**
+     * @return Config
+     */
+    public function getConfig(): Config
+    {
+        return $this->config;
+    }
+
+    /**
+     * @param Input $input
+     * @param Closure $userFinder
+     * @throws JWTInValidUserException
+     * @throws JWTUserRepositoryException
+     * @return array
+     */
+    protected function checkUser(Input $input, Closure $userFinder)
+    {
+        if (is_null($this->userRepository)) {
+            throw new JWTUserRepositoryException('Invalid user repository on jwt driver!');
+        }
+
+        $jwtData = $this->getJWTData($input->get($this->headerKeyName));
+
+        if ($jwtData) {
+            $input->set('jwt_data', $jwtData);
+        }
+
+        $user = $userFinder();
+
+        if (!$user->getUserId()) {
+            throw new JWTInValidUserException('Invalid user!', Response::STATUS_INVALID_USER);
+        }
+
+        if ((isset($jwtData['user_info']['id']) && $user->getUserId() != $jwtData['user_info']['id'])) {
+            throw new JWTInValidUserException('Mismatch user id!', Response::STATUS_MISMATCH_USER_ID);
+        }
+        return [$user, $jwtData];
+    }
+
+    protected function generateCode(UserInterface $user)
+    {
+        return $this->codeGenerator->generate($user);
     }
 
 }

@@ -216,8 +216,13 @@ require 'vendor/autoload.php';
 
 class SimpleUserRepository implements UserRepositoryInterface {
 
-    public function findByInput(Input $input) : UserInterface{
+    public function findForLogin(Input $input) : UserInterface{
         $userId = $input->get('username')=='1234' && $input->get('password')=='1234' ? 1 : 0;
+        return new \Assin\PHPAuth\Drivers\JWT\User($userId);
+    }
+
+    public function findForForgetPassword(Input $input) : UserInterface{
+        $userId = $input->get('username')=='1234' ? 1 : 0;
         return new \Assin\PHPAuth\Drivers\JWT\User($userId);
     }
 }

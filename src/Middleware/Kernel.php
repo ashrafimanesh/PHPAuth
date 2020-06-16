@@ -20,14 +20,18 @@ class Kernel
         $this->middleware = $middleware;
     }
 
-    public function run(Input $input)
+    public function run(Input $input, array $privateMiddleware = [])
     {
         $pointer = 0;
-        $next = function ($input) use (&$pointer, &$next) {
-            if (!isset($this->middleware[$pointer])) {
+        $middleware = $this->middleware;
+        foreach ($privateMiddleware as $item){
+            $middleware[] = $item;
+        }
+        $next = function ($input) use ($middleware, &$pointer, &$next) {
+            if (!isset($middleware[$pointer])) {
                 return null;
             }
-            $middleware = $this->getMiddleware($pointer);
+            $middleware = $this->getMiddleware($middleware, $pointer);
             $pointer++;
             return $middleware->handle($input, $next);
         };
@@ -35,11 +39,12 @@ class Kernel
     }
 
     /**
+     * @param array $middleware
      * @param int $pointer
      * @return MiddlewareInterface
      */
-    protected function getMiddleware(int $pointer): MiddlewareInterface
+    protected function getMiddleware(array $middleware, int $pointer): MiddlewareInterface
     {
-        return $this->middleware[$pointer];
+        return $middleware[$pointer];
     }
 }
