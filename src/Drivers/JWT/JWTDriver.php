@@ -110,7 +110,7 @@ class JWTDriver implements DriverInterface
 
         $token = $this->createToken($this->makeUserInfo($user, $jwtData)->toArray());
 
-        return (new Response())->setData(['token' => $this->plainToken($token, true)]);
+        return (new Response())->setData(['token' => $this->plainToken($token, true), 'user' => $user]);
     }
 
     /**
@@ -134,7 +134,7 @@ class JWTDriver implements DriverInterface
 
         $token = $this->createToken($userInfo);
 
-        return (new Response())->setData(['token' => $this->plainToken($token, true), 'code' => $this->generateCode($user)]);
+        return (new Response())->setData(['token' => $this->plainToken($token, true), 'user' => $user, 'code' => $this->generateCode($user)]);
     }
 
     public function getMiddleware(string $groupName): array
@@ -232,9 +232,9 @@ class JWTDriver implements DriverInterface
     /**
      * @param Input $input
      * @param Closure $userFinder
-     * @throws JWTInValidUserException
-     * @throws JWTUserRepositoryException
      * @return array
+     * @throws JWTUserRepositoryException
+     * @throws JWTInValidUserException
      */
     protected function checkUser(Input $input, Closure $userFinder)
     {
