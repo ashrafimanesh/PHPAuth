@@ -76,11 +76,14 @@ class JWTDriver implements DriverInterface
     }
 
     /**
-     * @param Token $token
+     * @param Token|string $token
      * @return Token
      */
-    public function refreshToken(Token $token): Token
+    public function refreshToken($token): Token
     {
+        if(!($token instanceof Token)){
+            $token = $this->parseToTokenObject($token);
+        }
         $time = time();
         $builder = $this->config->getBuilder();
         foreach ($token->getClaims() as $name => $value) {
