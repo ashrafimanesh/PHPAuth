@@ -187,6 +187,21 @@ class JWTDriver implements DriverInterface
     }
 
     /**
+     * @param $token
+     * @return bool
+     */
+    public function expired($token): bool
+    {
+
+        $JWTData = $this->getJWTData($token);
+        if(!($JWTData['exp'] ?? false)){
+            return true;
+        }
+
+        return $JWTData['exp'] < time();
+    }
+
+    /**
      * @param Token $token
      * @return mixed
      */

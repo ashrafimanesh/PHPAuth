@@ -87,6 +87,12 @@ class JWTTest extends \Assin\PHPAuthTests\TestCase
         $this->assertTrue($response->getData()['token'] &&  $response->getData()['code']);
     }
 
+    public function testExpired()
+    {
+        $JWTDriver = new JWTDriver;
+        $this->assertTrue($JWTDriver->expired('Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImp0aSI6IjRmMWcyM2ExMmFhIn0.eyJqdGkiOiI0ZjFnMjNhMTJhYSIsImlhdCI6MTU5MjAzNzkzOCwiZXhwIjoxNTkyMDM3OTM5LCJ1c2VyX2luZm8iOltdfQ.yyJWz61cee6XsbCHfat5MbUVsfpU5t8CY2LixUMnu0s'));
+    }
+
     /**
      * @param $method
      * @param \Closure $return
