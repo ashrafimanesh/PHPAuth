@@ -11,13 +11,13 @@ class Response
     /**
      * @var int
      */
-    private $status;
+    protected $status;
     /**
      * @var string
      */
-    private $message;
+    protected $message;
 
-    private $data;
+    protected $data;
 
     public function __construct(int $status = 200, string $message = '')
     {

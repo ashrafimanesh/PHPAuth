@@ -15,15 +15,16 @@ class Config
     /**
      * @var string
      */
-    private $id;
+    protected $id;
     /**
      * @var int
      */
-    private $expireAfter;
+    protected $expireAfter;
 
     public $issuedBy;
     public $permittedFor;
     protected $key='test';
+
 
     /**
      * Config constructor.
