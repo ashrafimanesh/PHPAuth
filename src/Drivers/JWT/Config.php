@@ -25,6 +25,7 @@ class Config
     public $permittedFor;
     protected $key='test';
 
+
     /**
      * Config constructor.
      * @param string $id
