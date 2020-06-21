@@ -108,12 +108,12 @@ class JWTDriver implements DriverInterface
                 return $this->userRepository->findForLogin($input);
             });
         } catch (JWTInValidUserException $e) {
-            return new Response($e->getCode(), $e->getMessage());
+            return $this->makeResponse($e->getCode(), $e->getMessage());
         }
 
         $token = $this->createToken($this->makeUserInfo($user, $jwtData)->toArray());
 
-        return (new Response())->setData(['token' => $this->plainToken($token, true), 'user' => $user]);
+        return $this->makeResponse()->setData(['token' => $this->plainToken($token, true), 'user' => $user]);
     }
 
     /**
@@ -129,7 +129,9 @@ class JWTDriver implements DriverInterface
                 return $this->userRepository->findForForgetPassword($input);
             });
         } catch (JWTInValidUserException $e) {
-            return new Response($e->getCode(), $e->getMessage());
+            $status = $e->getCode();
+            $message = $e->getMessage();
+            return $this->makeResponse($status, $message);
         }
 
         $userInfo = $this->makeUserInfo($user, $jwtData)->toArray();
@@ -137,7 +139,7 @@ class JWTDriver implements DriverInterface
 
         $token = $this->createToken($userInfo);
 
-        return (new Response())->setData(['token' => $this->plainToken($token, true), 'user' => $user, 'code' => $this->generateCode($user)]);
+        return $this->makeResponse()->setData(['token' => $this->plainToken($token, true), 'user' => $user, 'code' => $this->generateCode($user)]);
     }
 
     public function getMiddleware(string $groupName): array
@@ -281,6 +283,16 @@ class JWTDriver implements DriverInterface
     protected function generateCode(UserInterface $user)
     {
         return $this->codeGenerator->generate($user);
+    }
+
+    /**
+     * @param int $status
+     * @param string $message
+     * @return Response
+     */
+    protected function makeResponse(int $status = 200, string $message = ''): Response
+    {
+        return new Response($status, $message);
     }
 
 }

@@ -15,7 +15,7 @@ class UserInfo
     /**
      * @var array
      */
-    private $jwtData;
+    private $jwtData = [];
 
     public function __construct(UserInterface $user = null, array $jwtData = [])
     {
@@ -38,5 +38,21 @@ class UserInfo
             return [];
         }
         return ['id' => $userId];
+    }
+
+    /**
+     * @return UserInterface|null
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @return array
+     */
+    public function getJwtData(): array
+    {
+        return $this->jwtData;
     }
 }
